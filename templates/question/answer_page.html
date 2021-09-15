@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+<title>Answer</title>
+{% endblock title %}
+
+
+{% block main_content %}
+<br><br><br>
+
+<div class="card">
+    <div class="card-body">
+        <form action="{% url 'answer' the_question.pk %}" method="post">
+            {% csrf_token %}
+            <div class="container my-4">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h5>Q: {{the_question}}</h5>
+                        <p>Answer this question:</p>
+                        <hr size="30px">
+                        <textarea class="form-control" name="answer" cols="25" rows="3"
+                            placeholder="Answer this question, the community is eager to know the answer"></textarea><br>
+
+                        <hr size="30px">
+
+                        <div class="form-group">
+                        <button class="btn" style="background-color: #0099FF;color:white; position: relative;" type="submit">Answer</button>
+                        </div>
+                        {% if answered %}
+                        <div>
+                            Other Questions related to this question- <br>
+                            {% for i in answered %}
+                                <li><a href="{% url 'sub_question' i.pk %}">{{i.the_sub_question}}</a></li>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if other_answers %}
+    <br>
+    <h6>More Answers of this question..</h6>
+    <br>
+    {% for answer in other_answers %}
+        <div class="card">
+            <div class="card-header">
+            Answerd by - <a href="">{{answer.answered_by.first_name}} {{answer.answered_by.last_name}}</a>
+            <br>
+            {{answer.answered_when}}
+            </div>
+            <div class="card-body">
+                <h6>{{answer}}</h6>
+                <a href="{% url 'up_vote' answer.pk %}">upvote</a>
+                <br>
+                <a href="{% url 'down_vote' answer.pk %}">downvote</a>
+            </div>
+        </div>
+        <br>
+    {% endfor %}
+{% endif %}
+
+
+
+{% endblock main_content %}

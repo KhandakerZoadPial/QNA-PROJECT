@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+<title>Answer</title>
+{% endblock title %}
+
+
+{% block main_content %}
+<br><br><br>
+
+{% if flag %}
+<div class="card">
+    <div class="card-body">
+        <form action="{% url 'sub_question' the_question.pk %}" method="post">
+            {% csrf_token %}
+            <div class="container my-4">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h5>Q: {{the_question.the_sub_question}}</h5>
+                        <p>Answer this question:</p>
+                        <hr size="30px">
+                        <textarea class="form-control" name="answer" cols="25" rows="3"
+                            placeholder="Answer this question, the community is eager to know the answer"></textarea><br>
+
+                        <hr size="30px">
+
+                        <div class="form-group">
+                        <button class="btn" style="background-color: #0099FF;color:white; position: relative;" type="submit">Answer</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% else %}
+<div class="card text-white bg-success mt-2">
+  <div class="card-header">Answered by - <a href="">{{the_question.main_question.asked_by.first_name}} {{the_question.main_question.asked_by.last_name}}</a></div>
+  <div class="card-body">
+    <h5 class="card-title">Q: {{the_question.the_sub_question}}</h5>
+    <p class="card-text">{{the_answer}}</p>
+  </div>
+</div>
+
+
+{% endif %}
+
+
+{% endblock main_content %}
