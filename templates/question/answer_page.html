@@ -23,15 +23,20 @@
                             placeholder="Answer this question, the community is eager to know the answer"></textarea><br>
 
                         <hr size="30px">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="is_ann" id="flexSwitchCheckChecked">
+                            <label class="form-check-label" for="flexSwitchCheckChecked">Answer as anonymous</label>
+                          </div>
 
                         <div class="form-group">
-                        <button class="btn" style="background-color: #0099FF;color:white; position: relative;" type="submit">Answer</button>
+                            <button class="btn" style="background-color: #0099FF;color:white; position: relative;"
+                                type="submit">Answer</button>
                         </div>
                         {% if answered %}
                         <div>
                             Other Questions related to this question- <br>
                             {% for i in answered %}
-                                <li><a href="{% url 'sub_question' i.pk %}">{{i.the_sub_question}}</a></li>
+                            <li><a href="{% url 'sub_question' i.pk %}">{{i.the_sub_question}}</a></li>
                             {% endfor %}
                         </div>
                         {% endif %}
@@ -44,25 +49,90 @@
 </div>
 
 {% if other_answers %}
-    <br>
-    <h6>More Answers of this question..</h6>
-    <br>
-    {% for answer in other_answers %}
-        <div class="card">
-            <div class="card-header">
-            Answerd by - <a href="">{{answer.answered_by.first_name}} {{answer.answered_by.last_name}}</a>
-            <br>
-            {{answer.answered_when}}
-            </div>
-            <div class="card-body">
-                <h6>{{answer}}</h6>
-                <a href="{% url 'up_vote' answer.pk %}">upvote</a>
-                <br>
-                <a href="{% url 'down_vote' answer.pk %}">downvote</a>
-            </div>
-        </div>
+<br>
+<h6>More Answers of this question..</h6>
+<br>
+{% for answer in other_answers %}
+<div class="card">
+    <div class="card-header">
+        {% if answer.is_anonymous %}
+        Answered by - Anonymous
+        {% else %}
+        Answerd by - <a href="">{{answer.answered_by.first_name}} {{answer.answered_by.last_name}}</a>
+        {% endif %}
         <br>
-    {% endfor %}
+        {{answer.answered_when}}
+    </div>
+    <div class="card-body">
+        <h6>{{answer}}</h6>
+        <hr size="30px">
+        {% if user in answer.upvoted_user.all %}
+            <a class="btn btn-primary" href="{% url 'up_vote' answer.pk %}">{{answer.upvoted_user.all.count}}
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    class="bi bi-arrow-bar-up" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M8 10a.5.5 0 0 0 .5-.5V3.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 3.707V9.5a.5.5 0 0 0 .5.5zm-7 2.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z" />
+                </svg>
+
+            </a> 
+
+            <a class="btn btn-sm btn-outline-danger" href="{% url 'down_vote' answer.pk %}"> {{answer.downvoted_user.all.count}}
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    class="bi bi-arrow-bar-down" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M1 3.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5zM8 6a.5.5 0 0 1 .5.5v5.793l2.146-2.147a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 .708-.708L7.5 12.293V6.5A.5.5 0 0 1 8 6z" />
+                </svg>
+
+            </a>
+        {% elif user in answer.downvoted_user.all %}
+
+            <a class="btn btn-sm btn-outline-primary" href="{% url 'up_vote' answer.pk %}"> {{answer.upvoted_user.all.count}}
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    class="bi bi-arrow-bar-up" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M8 10a.5.5 0 0 0 .5-.5V3.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 3.707V9.5a.5.5 0 0 0 .5.5zm-7 2.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z" />
+                </svg>
+
+            </a>
+
+            <a class="btn btn-sm btn-danger" href="{% url 'down_vote' answer.pk %}"> {{answer.downvoted_user.all.count}}
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    class="bi bi-arrow-bar-down" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M1 3.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5zM8 6a.5.5 0 0 1 .5.5v5.793l2.146-2.147a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 .708-.708L7.5 12.293V6.5A.5.5 0 0 1 8 6z" />
+                </svg>
+
+            </a>
+        {% else %}
+            <a class="btn btn-sm btn-outline-primary" href="{% url 'up_vote' answer.pk %}"> {{answer.upvoted_user.all.count}}
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    class="bi bi-arrow-bar-up" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M8 10a.5.5 0 0 0 .5-.5V3.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 3.707V9.5a.5.5 0 0 0 .5.5zm-7 2.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5z" />
+                </svg>
+
+            </a>
+            <a class="btn btn-sm btn-outline-danger" href="{% url 'down_vote' answer.pk %}"> {{answer.downvoted_user.all.count}}
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    class="bi bi-arrow-bar-down" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M1 3.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 0 1h-13a.5.5 0 0 1-.5-.5zM8 6a.5.5 0 0 1 .5.5v5.793l2.146-2.147a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 .708-.708L7.5 12.293V6.5A.5.5 0 0 1 8 6z" />
+                </svg>
+
+            </a>
+        {% endif %}
+        <br>
+
+    </div>
+</div>
+<br>
+{% endfor %}
 {% endif %}
 
 

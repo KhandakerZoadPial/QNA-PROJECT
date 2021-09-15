@@ -1,20 +1,29 @@
 from django.shortcuts import redirect, render, HttpResponse
-from .models import Question, Answer, Sub_question, User_Profile
+from .models import Question, Answer, Sub_question, User_Profile, category as c
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 
 
 def home(request):
     questions_set = Question.objects.all().order_by('-asked_when')
     if request.method == 'POST':
         the_question = request.POST.get('the_question')
-        # category = request.POST.get('category')
-        # if category == '':
-        #     messages.error(request, "Please select a category properly!")
-        #     return redirect('/')
-        category = 'tech'
+
+        category = request.POST.get('category')
+        if category == 'Select Category':
+            messages.error(request, "Please select a category properly!")
+            return redirect('/')
+
+        is_ann = request.POST.get('is_ann')
+        if is_ann == 'on':
+            is_ann = True
+        else:
+            is_ann = False
+
+
         if((the_question.strip())):
-            obj = Question(asked_by=request.user, the_question=the_question, question_category=category)
+            obj = Question(asked_by=request.user, the_question=the_question, question_category=category, is_anonymous=is_ann)
             obj.save()
             return render(request, 'question/home.html', {'questions_set': questions_set})
         else:
@@ -22,7 +31,8 @@ def home(request):
             return redirect('/')
     elif request.method == 'GET':
         # dy#j9CF=
-        return render(request, 'question/home.html', {'questions_set': questions_set})
+        cats = c.objects.all()
+        return render(request, 'question/home.html', {'questions_set': questions_set, 'cats': cats})
 
 
 def answer_question(request, question_obj):
@@ -62,7 +72,12 @@ def answer_question(request, question_obj):
             return redirect(f'/answer/{question_obj}')
         try:
             the_question = Question.objects.get(pk=question_obj)
-            obj = Answer(answered_by=request.user, answer_of=the_question, the_answer=the_answer)
+            is_ann = request.POST.get('is_ann')
+            if is_ann == 'on':
+                is_ann = True
+            else:
+                is_ann = False
+            obj = Answer(answered_by=request.user, answer_of=the_question, the_answer=the_answer, is_anonymous=is_ann)
             obj.save()
             return redirect(f'/answer/{question_obj}')
         except:
@@ -122,7 +137,7 @@ def profile_handler(request, user_id):
 def edit_profile(request, profile_id):
     pass
 
-
+@login_required()
 def up_vote(request, answer_id):
     if Answer.objects.filter(pk=answer_id).count() > 0:
         try:
@@ -138,7 +153,7 @@ def up_vote(request, answer_id):
             obj = Answer.objects.get(pk=answer_id)
             obj.rmv_upvote(the_question_object, request.user)
             obj.save()
-            return redirect('/') # return to the same page
+            return redirect(f'/answer/{the_question_object.pk}') # return to the same page
         else:
             obj = Answer.objects.get(pk=answer_id)
             if Answer.objects.filter(pk=answer_id, downvoted_user=request.user):
@@ -147,12 +162,12 @@ def up_vote(request, answer_id):
                 obj.save()
             obj.upvoted(the_question_object, request.user)
             obj.save()
-            return redirect('/') # return to the same page
+            return redirect(f'/answer/{the_question_object.pk}') # return to the same page
     else:
         messages.error(request, 'The Answer does not exist')
         return redirect('/')
 
-
+@login_required()
 def down_vote(request, answer_id):
     if Answer.objects.filter(pk=answer_id).count() > 0:
         try:
@@ -168,7 +183,7 @@ def down_vote(request, answer_id):
             obj = Answer.objects.get(pk=answer_id)
             obj.rmv_downvote(the_question_object, request.user)
             obj.save()
-            return redirect('/') # return to the same page
+            return redirect(f'/answer/{the_question_object.pk}')# return to the same page
         else:
             obj = Answer.objects.get(pk=answer_id)
             if Answer.objects.filter(pk=answer_id, upvoted_user=request.user).count() > 0:
@@ -177,7 +192,7 @@ def down_vote(request, answer_id):
                 obj.save()
             obj.downvoted(the_question_object, request.user)
             obj.save()
-            return redirect('/') # return to the same page
+            return redirect(f'/answer/{the_question_object.pk}') # return to the same page
     else:
         messages.error(request, 'The Answer does not exist')
         return redirect('/')

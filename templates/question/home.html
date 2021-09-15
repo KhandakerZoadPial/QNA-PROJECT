@@ -11,40 +11,46 @@
 <br><br><br>
 
 <div class="card">
-    <div class="card-body">
-        <form action="{% url 'home' %}" method="post">
-            {% csrf_token %}
-            <div class="container my-4">
-                <div class="row">
-                    <div class="col-md-8">
-                        <h6>Ask your question:</h6>
-                        <hr size="30px">
-                        <textarea class="form-control" name="the_question" cols="25" rows="3"
-                            placeholder="Ask a question, the community is eager to answer"></textarea><br>
+  <div class="card-body">
+    <form action="{% url 'home' %}" method="post">
+      {% csrf_token %}
+      <div class="container my-4">
+        <div class="row">
+          <div class="col-md-8">
+            <h6>Ask your question:</h6>
+            <hr size="30px">
+            <textarea class="form-control" name="the_question" cols="25" rows="3"
+              placeholder="Ask a question, the community is eager to answer"></textarea><br>
 
-
-                            <div class="dropdown">
-                                <button class="btn btn-secondary-outline dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" >
-                                  Question Category
-                                </button>
-                                <div class="dropdown-menu" aria-labelledby="dropdownMenu2" name="category">
-                                  <button class="dropdown-item" type="button">Lifestyle</button>
-                                  <button class="dropdown-item" type="button">Tech</button>
-                                  <button class="dropdown-item" type="button">Programming</button>
-                                </div>
-                              </div>
-                        
-                        <hr size="30px">
-
-                        <div class="form-group">
-                            <button class="btn" style="background-color: #0099FF;color:white; position: relative;" type="submit">Ask</button>
-                        </div>
-                    </div>
-
+            <hr size="30px">
+            <div class="container">
+              <div class="row">
+                <div class="input-group mb-3">
+                  <select class="custom-select" id="inputGroupSelect01" name="category">
+                    <option selected>Select Category</option>
+                    {% for c in cats %}
+                    <option value="{{c.cat}}">{{c.cat}}</option>
+                    {% endfor %}
+                  </select>
                 </div>
+
+                <div class="form-check form-switch ml-2 mt-2">
+                  <input class="form-check-input" type="checkbox" name="is_ann" id="flexSwitchCheckChecked">
+                  <label class="form-check-label" for="flexSwitchCheckChecked">Ask as anonymous</label>
+                </div>
+              </div>
             </div>
-        </form>
-    </div>
+
+            <div class="form-group mt-2">
+              <button class="btn" style="background-color: #0099FF;color:white; position: relative;"
+                type="submit">Ask</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </form>
+  </div>
 </div>
 
 <br>
@@ -52,15 +58,24 @@
 
 {% for q in questions_set %}
 <div class="card mt-4">
-    <div class="card-body">
-     <h5><a href="{% url 'answer' q.pk %}">{{q.the_question}}</a> </h5><p>asked by- <a href="{% url 'profile_handler' q.asked_by.pk %}">{{q.asked_by.first_name}} {{q.asked_by.last_name}} </a></p>
-     <a href="{% url 'answer' q.pk %}" class="btn btn-outline-success btn-sm"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-reply-all-fill" viewBox="0 0 16 16">
-        <path d="M8.021 11.9 3.453 8.62a.719.719 0 0 1 0-1.238L8.021 4.1a.716.716 0 0 1 1.079.619V6c1.5 0 6 0 7 8-2.5-4.5-7-4-7-4v1.281c0 .56-.606.898-1.079.62z"/>
-        <path d="M5.232 4.293a.5.5 0 0 1-.106.7L1.114 7.945a.5.5 0 0 1-.042.028.147.147 0 0 0 0 .252.503.503 0 0 1 .042.028l4.012 2.954a.5.5 0 1 1-.593.805L.539 9.073a1.147 1.147 0 0 1 0-1.946l3.994-2.94a.5.5 0 0 1 .699.106z"/>
+  <div class="card-body">
+    <h5><a href="{% url 'answer' q.pk %}">{{q.the_question}}</a> </h5>
+    {% if q.is_anonymous %}
+    <p>Asked by - Anonymous</p>
+    {% else %}
+    <p>asked by- <a href="{% url 'profile_handler' q.asked_by.pk %}">{{q.asked_by.first_name}} {{q.asked_by.last_name}}
+      </a></p>
+      {% endif %}
+    <a href="{% url 'answer' q.pk %}" class="btn btn-outline-success btn-sm"><svg xmlns="http://www.w3.org/2000/svg"
+        width="16" height="16" fill="currentColor" class="bi bi-reply-all-fill" viewBox="0 0 16 16">
+        <path
+          d="M8.021 11.9 3.453 8.62a.719.719 0 0 1 0-1.238L8.021 4.1a.716.716 0 0 1 1.079.619V6c1.5 0 6 0 7 8-2.5-4.5-7-4-7-4v1.281c0 .56-.606.898-1.079.62z" />
+        <path
+          d="M5.232 4.293a.5.5 0 0 1-.106.7L1.114 7.945a.5.5 0 0 1-.042.028.147.147 0 0 0 0 .252.503.503 0 0 1 .042.028l4.012 2.954a.5.5 0 1 1-.593.805L.539 9.073a1.147 1.147 0 0 1 0-1.946l3.994-2.94a.5.5 0 0 1 .699.106z" />
       </svg>
       Answer</a>
-      
-    </div>
+
   </div>
+</div>
 {% endfor %}
 {% endblock main_content %}
