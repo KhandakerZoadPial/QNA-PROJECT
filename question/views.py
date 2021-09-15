@@ -151,16 +151,16 @@ def up_vote(request, answer_id):
         if Answer.objects.filter(pk=answer_id, upvoted_user=request.user).count() > 0:
             # Upvote already exists
             obj = Answer.objects.get(pk=answer_id)
-            obj.rmv_upvote(the_question_object, request.user)
+            obj.rmv_upvote(the_question_object, request.user, answer_id)
             obj.save()
             return redirect(f'/answer/{the_question_object.pk}') # return to the same page
         else:
             obj = Answer.objects.get(pk=answer_id)
             if Answer.objects.filter(pk=answer_id, downvoted_user=request.user):
                 # downvote already exists
-                obj.rmv_downvote(the_question_object, request.user)
+                obj.rmv_downvote(the_question_object, request.user, answer_id)
                 obj.save()
-            obj.upvoted(the_question_object, request.user)
+            obj.upvoted(the_question_object, request.user, answer_id)
             obj.save()
             return redirect(f'/answer/{the_question_object.pk}') # return to the same page
     else:
@@ -181,18 +181,22 @@ def down_vote(request, answer_id):
         if Answer.objects.filter(pk=answer_id, downvoted_user=request.user).count() > 0:
             # Downvote already exists
             obj = Answer.objects.get(pk=answer_id)
-            obj.rmv_downvote(the_question_object, request.user)
+            obj.rmv_downvote(the_question_object, request.user, answer_id)
             obj.save()
             return redirect(f'/answer/{the_question_object.pk}')# return to the same page
         else:
             obj = Answer.objects.get(pk=answer_id)
             if Answer.objects.filter(pk=answer_id, upvoted_user=request.user).count() > 0:
                 # downvote already exists
-                obj.rmv_upvote(the_question_object, request.user)
+                obj.rmv_upvote(the_question_object, request.user, answer_id)
                 obj.save()
-            obj.downvoted(the_question_object, request.user)
+            obj.downvoted(the_question_object, request.user, answer_id)
             obj.save()
             return redirect(f'/answer/{the_question_object.pk}') # return to the same page
     else:
         messages.error(request, 'The Answer does not exist')
         return redirect('/')
+
+
+def search(request, query):
+    question_set = Question.objects.all()

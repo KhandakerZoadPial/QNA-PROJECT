@@ -33,25 +33,24 @@ class Answer(models.Model):
     downvoted_user = models.ManyToManyField(User, related_name='downvotedUser', blank=True)
 
     @classmethod
-    def upvoted(cls, question, upvoted_user):
-        obj = cls.objects.get(answer_of=question)
+    def upvoted(cls, question, upvoted_user, pk):
+        obj = cls.objects.get(answer_of=question, pk=pk)
         obj.upvoted_user.add(upvoted_user)
 
     @classmethod
-    def rmv_upvote(cls, question, upvoted_user):
-        obj = cls.objects.get(answer_of=question)
+    def rmv_upvote(cls, question, upvoted_user, pk):
+        obj = cls.objects.get(answer_of=question, pk=pk)
         obj.upvoted_user.remove(upvoted_user)
 
     @classmethod
-    def downvoted(cls, question, downvoted_user):
-        obj = cls.objects.get(answer_of=question)
+    def downvoted(cls, question, downvoted_user, pk):
+        obj = cls.objects.get(answer_of=question, pk=pk)
         obj.downvoted_user.add(downvoted_user)
 
     @classmethod
-    def rmv_downvote(cls, question, downvoted_user):
-        obj = cls.objects.get(answer_of=question)
+    def rmv_downvote(cls, question, downvoted_user, pk):
+        obj = cls.objects.get(answer_of=question, pk=pk)
         obj.downvoted_user.remove(downvoted_user)
-
 
     def __str__(self):
         return self.the_answer
@@ -68,3 +67,4 @@ class User_Profile(models.Model):
 
 class category(models.Model):
     cat = models.CharField(max_length=30)
+
