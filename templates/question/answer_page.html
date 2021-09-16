@@ -55,6 +55,9 @@
 {% for answer in other_answers %}
 <div class="card">
     <div class="card-header">
+        {% if answer.is_verified %}
+        <button type="button" class="btn btn-lg btn-success" disabled>Verified Answer</button>
+        {% endif %}
         {% if answer.is_anonymous %}
         Answered by - Anonymous
         {% else %}

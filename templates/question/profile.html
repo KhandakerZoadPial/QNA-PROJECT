@@ -1,1 +1,143 @@
-Wellcome to profile Page!!!
+{% extends 'base.html' %}
+
+{% block styles %}
+<style>
+    body {
+        border-radius: 10px
+    }
+
+    .card {
+        border-radius: 10px;
+        background-color: #fff
+    }
+
+    .stats {
+        background: #f2f5f8 !important;
+        color: #000 !important;
+
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        grid-gap: .5rem;
+    }
+
+    .articles {
+        font-size: 10px;
+        color: #a1aab9
+    }
+
+    .number1 {
+        font-weight: 500;
+        color: #a1aab9
+    }
+
+    .number2 {
+        font-weight: 500;
+        color: #a1aab9
+    }
+
+    .rating {
+        font-size: 10px;
+        color: #a1aab9
+    }
+
+    .number3 {
+        font-weight: 500;
+        color: #a1aab9
+    }
+</style>
+{% endblock styles %}
+
+
+{% block main_content %}
+<br>
+    <div class="container mt-5 d-flex justify-content-center">
+        <div class="card p-3">
+            <div class="d-flex align-items-center">
+                <div class="image">
+
+                    {% if profile_info.the_user.socialaccount_set.all.0.get_avatar_url %}
+                    <img src="{{ profile_info.the_user.socialaccount_set.all.0.get_avatar_url }}" class="rounded"
+                        width="140">
+                    {% elif profile_info.the_user.socialaccount_set.all.1.get_avatar_url %}
+
+                    <img src="{{profile_info.the_user.socialaccount_set.all.1.get_avatar_url}}" class="rounded"
+                        width="140">
+                    {% else %}
+                    <img src="" class="rounded" width="155">
+                    {% endif %}
+                </div>
+                <div class="ml-3 w-100">
+                    <h4 class="mb-0 mt-0">{{profile_info.the_user.first_name}} {{profile_info.the_user.last_name}}{% if profile_info.is_verified %}
+                        <img src="https://img.icons8.com/material-rounded/18/000000/verified-account.png" />
+                        {% endif %}
+                    </h4>
+                    {% if profile_info.profession %}
+                    <span>{{profile_info.profession}}</span> <br>
+                    {% else %}
+                    <br>
+                    {% endif %}
+                    
+                </div>
+
+            </div>
+
+            <div class="p-2 mt-2 bg-primary d-flex justify-content-between rounded text-white stats">
+                <div class="d-flex flex-column"> <span class="articles">Questions</span> <span
+                        class="number1">{{temp.qs}}</span> </div>
+                <div class="d-flex flex-column"> <span class="articles">Answers</span> <span
+                        class="number2">{{temp.ans}}</span> </div>
+                <div class="d-flex flex-column"> <span class="articles">Rating</span> <span
+                        class="number3">{{profile_info.rating}}</span>
+                </div>
+            </div>
+            <hr>
+            {% if profile_info.the_user == user %}
+            {% if profile_info.short_bio %}
+            <div class="card" >
+                <p class="card-header"><b>Bio - </b>{% if user == profile_info.the_user %}
+                    <a href="">edit</a>
+                    {% endif %}</p> 
+                <div class="card-body">
+                    <h5 class="card-title">{{ profile_info.short_bio }}</h5>
+                </div>
+            </div>
+            <br>
+            {% endif %}
+
+            {% if profile_info.knows_about %}
+            <div class="card" >
+                <h5 class="card-header">Knows About 
+                    {% if user == profile_info.the_user %}
+                    <a href="">edit</a>
+                    {% endif %}
+                </h5>
+                <div class="card-body">
+                    <h5 class="card-title">{{ profile_info.knows_about }}</h5>
+                </div>
+            </div>
+            {% endif %}
+            {% else %}
+            {% if profile_info.short_bio %}
+            <div class="card" >
+                <p class="card-header"><b>Bio - </b></p> 
+                <div class="card-body">
+                    <h5 class="card-title">{{ profile_info.short_bio }}</h5>
+                </div>
+            </div>
+            <br>
+            {% endif %}
+
+            {% if profile_info.knows_about %}
+            <div class="card" >
+                <h5 class="card-header">Knows About 
+                </h5>
+                <div class="card-body">
+                    <h5 class="card-title">{{ profile_info.knows_about }}</h5>
+                </div>
+            </div>
+            {% endif %}
+            {% endif %}
+           
+        </div>
+    </div>
+{% endblock main_content %}

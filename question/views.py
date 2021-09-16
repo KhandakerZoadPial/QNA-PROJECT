@@ -3,12 +3,19 @@ from .models import Question, Answer, Sub_question, User_Profile, category as c
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+import enchant
 
 
 def home(request):
     questions_set = Question.objects.all().order_by('-asked_when')
     if request.method == 'POST':
         the_question = request.POST.get('the_question')
+
+        if sentence_tester(the_question):
+            pass
+        else:
+            messages.error(request, 'Please try asking a meaningful question!')
+            return redirect('/')
 
         category = request.POST.get('category')
         if category == 'Select Category':
@@ -58,8 +65,8 @@ def answer_question(request, question_obj):
                 for item in temp:
                     if item.is_answered:
                         answered.append(item)
-
-            return render(request, 'question/answer_page.html', {'the_question': the_question, 'other_answers': other_answers, 'answered': answered, 'unanswered': unanswered})
+            cats = c.objects.all()
+            return render(request, 'question/answer_page.html', {'the_question': the_question, 'other_answers': other_answers, 'answered': answered, 'unanswered': unanswered, 'cats': cats})
         except:
             messages.error(request, 'The question does not exist!')
             return redirect('/')
@@ -128,7 +135,16 @@ def profile_handler(request, user_id):
             obj = User_Profile(the_user=profile_owner_user)
             obj.save()
         obj = User_Profile.objects.get(the_user=profile_owner_user)
-        return render(request, 'question/profile.html', {'user_profile': obj})
+
+        qs = Question.objects.filter(asked_by=profile_owner_user).count()
+        ans = Answer.objects.filter(answered_by=profile_owner_user).count()
+        
+        temp = {
+            'qs': qs,
+            'ans': ans
+        }
+        cats = c.objects.all()
+        return render(request, 'question/profile.html', {'profile_info': obj, 'temp': temp, 'cats': cats})
     except:
         messages.error(request, 'Something went wrong')
         return redirect('/')
@@ -136,6 +152,7 @@ def profile_handler(request, user_id):
 
 def edit_profile(request, profile_id):
     pass
+
 
 @login_required()
 def up_vote(request, answer_id):
@@ -166,6 +183,7 @@ def up_vote(request, answer_id):
     else:
         messages.error(request, 'The Answer does not exist')
         return redirect('/')
+
 
 @login_required()
 def down_vote(request, answer_id):
@@ -198,5 +216,61 @@ def down_vote(request, answer_id):
         return redirect('/')
 
 
-def search(request, query):
-    question_set = Question.objects.all()
+def search(request):
+    container = []
+    if request.method == 'POST':
+        query = request.POST.get('search')
+        if query.isspace() or query =='':
+            messages.error(request, 'Query can not be empty')
+            return redirect('/')
+        query_list = query.split(' ')
+        ignore_list = ['what', 'how', 'when', 'who', 'where', 'if', 'then']
+        for q in query_list:
+            if q.lower() in ignore_list:
+                query_list.pop(q)
+        for q in query_list:
+            temp = Question.objects.filter(the_question__contains=q)
+            for item in temp:
+                if item not in container:
+                    container.append(item)
+    else:
+        messages.error(request, 'Please put your query in the search box!')
+        return redirect('/')
+    cats = c.objects.all()
+    return render(request, 'question/search.html', {'results': container, 'cats': cats})
+
+
+def search2(request, cat_id):
+    container = []
+    query = c.objects.get(pk=cat_id)
+    query = query.cat
+    
+    # query_list = query.split(' ')
+    # ignore_list = ['what', 'how', 'when', 'who', 'where', 'if', 'then']
+    # for q in query_list:
+    #     if q.lower() in ignore_list:
+    #         query_list.pop(q)
+    # for q in query_list:
+    #     temp = Question.objects.filter(the_question__contains=q)
+    #     for item in temp:
+    #         if item not in container:
+    #             container.append(item)
+
+    results = Question.objects.filter(question_category=query)
+
+    cats = c.objects.all()
+    return render(request, 'question/search.html', {'results': results, 'cats': cats})
+
+
+d = enchant.Dict("en_US")
+def sentence_tester(sentence):
+    sentence = sentence.split(' ')
+    count = 0
+    for word in sentence:
+        if d.check(word):
+            count+=1
+
+    if count >=2:
+        return True
+    
+    return False

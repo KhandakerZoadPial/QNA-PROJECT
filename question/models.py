@@ -28,6 +28,7 @@ class Answer(models.Model):
     the_answer = models.TextField()
     answered_when = models.DateTimeField(auto_now_add=True)
     is_anonymous = models.BooleanField(default=False)
+    is_verified = models.BooleanField(default=False)
  
     upvoted_user = models.ManyToManyField(User, related_name='upvotedUser', blank=True)
     downvoted_user = models.ManyToManyField(User, related_name='downvotedUser', blank=True)
@@ -60,9 +61,10 @@ class User_Profile(models.Model):
     the_user = models.OneToOneField(
         User, related_name="the_user_profile", on_delete=models.CASCADE)
     is_verified = models.BooleanField(default=False)
-    profession = models.CharField(max_length=15, null=True, blank=True)
+    profession = models.CharField(max_length=30, null=True, blank=True)
     short_bio = models.CharField(max_length=200, null=True, blank=True)
     knows_about = models.TextField(null=True, blank=True)
+    rating = models.FloatField(default=0)
 
 
 class category(models.Model):

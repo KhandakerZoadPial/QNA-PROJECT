@@ -8,14 +8,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+
     {% block title %}
     {% endblock title %}
+    <style>
+      .bg-pial{
+        background-color: #00226b;
+      }
+    </style>
+    {% block styles %}
+    {% endblock styles %}
+
+
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="{% url 'home' %}">QNA</a>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-pial">
+        <a class="navbar-brand" href="{% url 'home' %}">TheAdviceOnline</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -29,18 +39,7 @@
                 {% comment %} <li class="nav-item">
                     <a class="nav-link" href="#">Link</a>
                 </li> {% endcomment %}
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Dropdown
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="#">Action</a>
-                        <a class="dropdown-item" href="#">Another action</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#">Something else here</a>
-                    </div>
-                </li>
+               
                 {% if user.is_authenticated %}
                 <li class="nav-item active">
                   <a class="nav-link" href="{% url 'profile_handler' user.pk %}">Profile <span class="sr-only">(current)</span></a>
@@ -54,8 +53,9 @@
                     <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
                 </li> {% endcomment %}
             </ul>
-            <form class="form-inline my-2 my-lg-0">
-                <input class="form-control mr-sm-2" type="search" placeholder="Search your question.." aria-label="Search">
+            <form action="{% url 'search' %}" class="form-inline my-2 my-lg-0" method="post">
+            {% csrf_token %}
+                <input class="form-control mr-sm-2" type="search" name="search" placeholder="Search your question.." aria-label="Search">
                 <button class="btn btn-outline-warning my-2 my-sm-0" type="submit"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
                   <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
                 </svg></button>
@@ -75,10 +75,10 @@
  {% endif %}
  <main role="main" class="container">
       <div class="row">
-        <div class="col-md-8">
+        <div class="col-lg-8">
           {% block main_content %}{% endblock main_content %}
         </div>
-        <div class="col-md-4 mt-4">
+        <div class="col-lg-4 mt-4">
         <br> <br>
           <div class="content-section">
             
@@ -97,10 +97,10 @@
             <h3>Filter Questions</h3>
             <p class='text-muted'>Select which type of question youn want to see
               <ul class="list-group">
-                <a href=""><li class="list-group-item list-group-item-light">Health</li></a>
-                <a href=""><li class="list-group-item list-group-item-light">Tech</li></a>
-                <a href=""><li class="list-group-item list-group-item-light">Finance</li></a>
-                  <a href=""><li class="list-group-item list-group-item-light">Lifestyle</li></a>
+              {% for x in cats %}
+                <a href="{% url 'search2' x.pk %}"><li class="list-group-item list-group-item-light">{{x.cat}}</li></a>
+              {% endfor %}
+                
               </ul>
             </p>
             {% endif %}
