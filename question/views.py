@@ -4,11 +4,13 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 import enchant
+from django.core.paginator import Paginator
 
 
 def home(request):
     questions_set = Question.objects.all().order_by('-asked_when')
-    if request.method == 'POST':
+    cats = c.objects.all()
+    if request.method == 'POST' and request.user.is_authenticated:
         the_question = request.POST.get('the_question')
 
         if sentence_tester(the_question):
@@ -28,20 +30,26 @@ def home(request):
         else:
             is_ann = False
 
-
-        if((the_question.strip())):
-            obj = Question(asked_by=request.user, the_question=the_question, question_category=category, is_anonymous=is_ann)
+        if the_question.strip():
+            obj = Question(asked_by=request.user, the_question=the_question,
+                           question_category=category, is_anonymous=is_ann)
             obj.save()
-            return render(request, 'question/home.html', {'questions_set': questions_set})
+            return render(request, 'question/home.html', {'questions_set': questions_set, 'cats': cats})
         else:
             messages.error(request, "A question can't be empty")
             return redirect('/')
     elif request.method == 'GET':
         # dy#j9CF=
-        cats = c.objects.all()
-        return render(request, 'question/home.html', {'questions_set': questions_set, 'cats': cats})
+        p = Paginator(questions_set, 10)
+        page_number = request.GET.get('page')
+        page_obj = p.get_page(page_number)
+
+        return render(request, 'question/home.html', {'questions_set': page_obj, 'cats': cats})
+    else:
+        return redirect('/accounts/login')
 
 
+@login_required()
 def answer_question(request, question_obj):
     user_ = request.user
     if request.method == 'GET':
@@ -49,12 +57,14 @@ def answer_question(request, question_obj):
             answered = []
             unanswered = []
             the_question = Question.objects.get(pk=question_obj)
-            other_answers = Answer.objects.filter(answer_of=the_question).order_by('-answered_when')
+            other_answers = Answer.objects.filter(
+                answer_of=the_question).order_by('-answered_when')
             if user_ == the_question.asked_by:
                 if Sub_question.objects.filter(main_question=the_question).count() == 0:
                     pass
                 else:
-                    temp = Sub_question.objects.filter(main_question=the_question)
+                    temp = Sub_question.objects.filter(
+                        main_question=the_question)
                     for item in temp:
                         if item.is_answered:
                             answered.append(item)
@@ -71,7 +81,6 @@ def answer_question(request, question_obj):
             messages.error(request, 'The question does not exist!')
             return redirect('/')
 
-
     elif request.method == 'POST':
         the_answer = request.POST.get('answer')
         if the_answer == '':
@@ -84,20 +93,13 @@ def answer_question(request, question_obj):
                 is_ann = True
             else:
                 is_ann = False
-            obj = Answer(answered_by=request.user, answer_of=the_question, the_answer=the_answer, is_anonymous=is_ann)
+            obj = Answer(answered_by=request.user, answer_of=the_question,
+                         the_answer=the_answer, is_anonymous=is_ann)
             obj.save()
             return redirect(f'/answer/{question_obj}')
         except:
             messages.error(request, 'The question does not exist!')
             return redirect('/')
-
-
-def delete_a_question(request, question_obj):
-    pass
-
-
-def delete_an_answer(request, answer_obj):
-    pass
 
 
 def answer_sub_question(request, sub_question_obj):
@@ -106,7 +108,7 @@ def answer_sub_question(request, sub_question_obj):
     except:
         messages.error(request, 'The question does not exist!')
         return redirect('/')
-    
+
     if request.method == 'GET':
         if request.user == sub_question_obj.main_question.asked_by:
             if Answer.objects.filter(answer_of_sub=sub_question_obj).count() > 0:
@@ -119,7 +121,8 @@ def answer_sub_question(request, sub_question_obj):
             return render(request, 'question/sub_answer.html', {'the_question': sub_question_obj, 'flag': False, 'the_answer': answer})
     elif request.method == 'POST':
         the_answer = request.POST.get('answer')
-        obj = Answer(answered_by=request.user, answer_of_sub=sub_question_obj, the_answer=the_answer)
+        obj = Answer(answered_by=request.user,
+                     answer_of_sub=sub_question_obj, the_answer=the_answer)
         obj.save()
         sub_question_obj.is_answered = True
         sub_question_obj.save()
@@ -138,20 +141,46 @@ def profile_handler(request, user_id):
 
         qs = Question.objects.filter(asked_by=profile_owner_user).count()
         ans = Answer.objects.filter(answered_by=profile_owner_user).count()
-        
+
         temp = {
             'qs': qs,
             'ans': ans
         }
         cats = c.objects.all()
-        return render(request, 'question/profile.html', {'profile_info': obj, 'temp': temp, 'cats': cats})
+        users_questions = Question.objects.filter(
+            asked_by=profile_owner_user, is_anonymous=False)
+        return render(request, 'question/profile.html', {'profile_info': obj, 'temp': temp, 'cats': cats, 'questions_set': users_questions})
     except:
         messages.error(request, 'Something went wrong')
         return redirect('/')
 
 
+@login_required()
 def edit_profile(request, profile_id):
-    pass
+    cats = c.objects.all()
+    if request.method == 'POST':
+        profile_obj = User_Profile.objects.filter(pk=profile_id)
+        if profile_obj.count() > 0:
+            if request.user == profile_obj[0].the_user:
+                prof = request.POST.get('prof', '')
+                bio = request.POST.get('bio', '')
+                knows = request.POST.get('knows', '')
+                profile_obj = profile_obj[0]
+                profile_obj.profession = prof
+                profile_obj.short_bio = bio
+                profile_obj.knows_about = knows
+                profile_obj.save()
+                messages.success(request, 'Successfully updated info!')
+                return redirect(f'/profile/{profile_obj.the_user.pk}')
+            else:
+                messages.error(request, 'Something went wrong')
+                return redirect('/')
+        else:
+            messages.error(request, 'Something went wrong')
+            return redirect('/')
+    else:
+        profile_obj = User_Profile.objects.filter(pk=profile_id)[0]
+        return render(request, 'question/edit_page.html', {'profile_info': profile_obj, 'cats': cats})
 
 
 @login_required()
@@ -164,13 +193,13 @@ def up_vote(request, answer_id):
             messages.error(request, 'Something went wrong')
             return redirect('/')
 
-
         if Answer.objects.filter(pk=answer_id, upvoted_user=request.user).count() > 0:
             # Upvote already exists
             obj = Answer.objects.get(pk=answer_id)
             obj.rmv_upvote(the_question_object, request.user, answer_id)
             obj.save()
-            return redirect(f'/answer/{the_question_object.pk}') # return to the same page
+            # return to the same page
+            return redirect(f'/answer/{the_question_object.pk}')
         else:
             obj = Answer.objects.get(pk=answer_id)
             if Answer.objects.filter(pk=answer_id, downvoted_user=request.user):
@@ -179,7 +208,8 @@ def up_vote(request, answer_id):
                 obj.save()
             obj.upvoted(the_question_object, request.user, answer_id)
             obj.save()
-            return redirect(f'/answer/{the_question_object.pk}') # return to the same page
+            # return to the same page
+            return redirect(f'/answer/{the_question_object.pk}')
     else:
         messages.error(request, 'The Answer does not exist')
         return redirect('/')
@@ -195,13 +225,13 @@ def down_vote(request, answer_id):
             messages.error(request, 'Something went wrong')
             return redirect('/')
 
-
         if Answer.objects.filter(pk=answer_id, downvoted_user=request.user).count() > 0:
             # Downvote already exists
             obj = Answer.objects.get(pk=answer_id)
             obj.rmv_downvote(the_question_object, request.user, answer_id)
             obj.save()
-            return redirect(f'/answer/{the_question_object.pk}')# return to the same page
+            # return to the same page
+            return redirect(f'/answer/{the_question_object.pk}')
         else:
             obj = Answer.objects.get(pk=answer_id)
             if Answer.objects.filter(pk=answer_id, upvoted_user=request.user).count() > 0:
@@ -210,7 +240,8 @@ def down_vote(request, answer_id):
                 obj.save()
             obj.downvoted(the_question_object, request.user, answer_id)
             obj.save()
-            return redirect(f'/answer/{the_question_object.pk}') # return to the same page
+            # return to the same page
+            return redirect(f'/answer/{the_question_object.pk}')
     else:
         messages.error(request, 'The Answer does not exist')
         return redirect('/')
@@ -220,57 +251,107 @@ def search(request):
     container = []
     if request.method == 'POST':
         query = request.POST.get('search')
-        if query.isspace() or query =='':
+        query_prev = query
+        if query.isspace() or query == '':
             messages.error(request, 'Query can not be empty')
             return redirect('/')
+        query = query.lower()
+        if '?' in query:
+            query = query.replace('?', '')
+        
         query_list = query.split(' ')
-        ignore_list = ['what', 'how', 'when', 'who', 'where', 'if', 'then']
-        for q in query_list:
-            if q.lower() in ignore_list:
-                query_list.pop(q)
+        ignore_list = ['what', 'how', 'when', 'who', 'where', 'if', 'then', 'one', 'in', 'of', 'under', 'like',
+                       'a', 'b', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
+                       'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'c',
+                       '.', '?', '!', 'you', 'till']
+        
+        pial_temp_obj = query_list.copy()
+
+        for item in pial_temp_obj:
+            print(item)
+            if item in ignore_list:
+                try:
+                    query_list.remove(item)
+                except:
+                    pass
+        
+        print(query_list)
+
         for q in query_list:
             temp = Question.objects.filter(the_question__contains=q)
             for item in temp:
+                if item not in container:
+                    container.append(item)
+
+        x = Question.objects.all()
+
+        for item in x:
+            habijabi = item.question_category.lower()
+            if habijabi in query_list:
                 if item not in container:
                     container.append(item)
     else:
         messages.error(request, 'Please put your query in the search box!')
         return redirect('/')
     cats = c.objects.all()
-    return render(request, 'question/search.html', {'results': container, 'cats': cats})
+    print(len(container))
+    return render(request, 'question/search.html', {'results': container, 'cats': cats, 'fr': query_prev})
 
 
 def search2(request, cat_id):
     container = []
     query = c.objects.get(pk=cat_id)
     query = query.cat
-    
-    # query_list = query.split(' ')
-    # ignore_list = ['what', 'how', 'when', 'who', 'where', 'if', 'then']
-    # for q in query_list:
-    #     if q.lower() in ignore_list:
-    #         query_list.pop(q)
-    # for q in query_list:
-    #     temp = Question.objects.filter(the_question__contains=q)
-    #     for item in temp:
-    #         if item not in container:
-    #             container.append(item)
 
     results = Question.objects.filter(question_category=query)
 
     cats = c.objects.all()
-    return render(request, 'question/search.html', {'results': results, 'cats': cats})
+    return render(request, 'question/search.html', {'results': results, 'cats': cats, 'fr': query})
 
 
 d = enchant.Dict("en_US")
+
+
 def sentence_tester(sentence):
     sentence = sentence.split(' ')
     count = 0
     for word in sentence:
         if d.check(word):
-            count+=1
+            count += 1
 
-    if count >=2:
+    if count >= 2:
         return True
-    
+
     return False
+
+
+def question_edit(request, answer_id):
+    cats = c.objects.all()
+    if request.method == 'POST':
+        edited_answer = request.POST.get('edited_answer')
+        if len(edited_answer) > 0 and edited_answer.strip():
+            answer_obj = Answer.objects.filter(pk=answer_id)
+            if answer_obj.count() > 0 and answer_obj[0].answered_by == request.user:
+                answer_obj = answer_obj[0]
+                answer_obj.the_answer = edited_answer
+                answer_obj.save()
+                messages.success(request, 'Succesfully updated your answer!')
+                return redirect(f'/answer/{answer_obj.answer_of.pk}')
+            else:
+                messages.error('Something went wrong!')
+                return redirect('/')
+        else:
+            messages.error(request, 'Answer can not be empty!')
+            return redirect(f'/et/{answer_id}')
+    elif request.method == 'GET':
+        data = Answer.objects.filter(pk=answer_id)
+        if data.count() > 0:
+            if request.user == data[0].answered_by:
+                data = data[0]
+                return render(request, 'question/answer_edit_page.html', {'answer': data, 'cats': cats})
+            else:
+                messages.error(request, 'Something went wrong!')
+                return redirect('/')
+        else:
+            messages.error(request, 'Something went wrong!')
+            return redirect('/')

@@ -5,6 +5,19 @@
 <title>Welcome to Home</title>
 {% endblock title %}
 
+{% block styles %}
+<style>
+.pial {
+  border-color: #00226b;
+  color: #00226b;
+}
+
+.pial:hover {
+  background-color: #00226b;
+  color: white;
+}
+</style>
+{% endblock styles %}
 
 
 {% block main_content %}
@@ -78,4 +91,10 @@
   </div>
 </div>
 {% endfor %}
+{% if questions_set.has_next %}
+        <div class="container mt-4">
+            <h6 style="text-align: center;"><a  class="btn pial btn-sm" href="?page={{questions_set.next_page_number}}" >See More</a></h6>
+        </div>
+        <br>
+{% endif %}
 {% endblock main_content %}

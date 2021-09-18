@@ -44,13 +44,24 @@
         font-weight: 500;
         color: #a1aab9
     }
+
+    .pial {
+      border-color: #00226b;
+      color: #00226b;
+    }
+    
+    .pial:hover {
+      background-color: #00226b;
+      color: white;
+    }
+    </style>
 </style>
 {% endblock styles %}
 
 
 {% block main_content %}
 <br>
-    <div class="container mt-5 d-flex justify-content-center">
+    <div class="container mt-2 d-flex justify-content-center">
         <div class="card p-3">
             <div class="d-flex align-items-center">
                 <div class="image">
@@ -92,34 +103,12 @@
             </div>
             <hr>
             {% if profile_info.the_user == user %}
+                <a href="{% url 'edit_profile' profile_info.pk %}" class="btn pial">Edit Profile</a> <br>
+            {% endif %}
+            
             {% if profile_info.short_bio %}
             <div class="card" >
-                <p class="card-header"><b>Bio - </b>{% if user == profile_info.the_user %}
-                    <a href="">edit</a>
-                    {% endif %}</p> 
-                <div class="card-body">
-                    <h5 class="card-title">{{ profile_info.short_bio }}</h5>
-                </div>
-            </div>
-            <br>
-            {% endif %}
-
-            {% if profile_info.knows_about %}
-            <div class="card" >
-                <h5 class="card-header">Knows About 
-                    {% if user == profile_info.the_user %}
-                    <a href="">edit</a>
-                    {% endif %}
-                </h5>
-                <div class="card-body">
-                    <h5 class="card-title">{{ profile_info.knows_about }}</h5>
-                </div>
-            </div>
-            {% endif %}
-            {% else %}
-            {% if profile_info.short_bio %}
-            <div class="card" >
-                <p class="card-header"><b>Bio - </b></p> 
+                <p class="card-header"><b>Bio - </b></p>
                 <div class="card-body">
                     <h5 class="card-title">{{ profile_info.short_bio }}</h5>
                 </div>
@@ -136,8 +125,20 @@
                 </div>
             </div>
             {% endif %}
+            {% if questions_set %}
+            
+                <h6 class=" ml-2 mt-4">Questions asked by {{profile_info.the_user.first_name}} {{profile_info.the_user.last_name}} </h6>
+                {% for q in questions_set %}
+                    <div class="card mt-2">
+                        <div class="card-body">
+                            <h5><a href="{% url 'answer' q.pk %}">{{q.the_question}}</a> </h5>                        
+                        </div>
+                    </div>
+                {% endfor %}
             {% endif %}
            
         </div>
+        
     </div>
+
 {% endblock main_content %}
