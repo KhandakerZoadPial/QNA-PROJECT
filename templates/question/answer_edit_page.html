@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+
+{% block styles %}
+<style>
+    .pial {
+      border-color: #00226b;
+      color: #00226b;
+    }
+    
+    .pial:hover {
+      background-color: #00226b;
+      color: white;
+    }
+    </style>
+{% endblock styles %}
+
+
+{% block main_content %}
+<br><br><br>
+<h5 class="mt-2">Edit Answer</h5>
+<form method="post" accept="{% url 'question_edit' answer.pk %}">
+    {% csrf_token %}
+    <div class="form-group mt-3">
+      
+        <textarea class="form-control" 
+        name="edited_answer"  rows="5">{{answer.the_answer}}</textarea>
+    </div>
+    <button type="submit" class="mb-4 btn btn-sm pial">Update Answer</button> <br>
+</form>
+<br><br><br><br>
+{% endblock main_content %}

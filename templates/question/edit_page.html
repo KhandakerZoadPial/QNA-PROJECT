@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+
+{% block styles %}
+<style>
+    .pial {
+      border-color: #00226b;
+      color: #00226b;
+    }
+    
+    .pial:hover {
+      background-color: #00226b;
+      color: white;
+    }
+    </style>
+{% endblock styles %}
+
+
+{% block main_content %}
+<br><br><br>
+<h5 class="mt-2">Edit Profile Info</h5>
+<form method="post" accept="{% url 'edit_profile' profile_info.pk %}">
+    {% csrf_token %}
+    <div class="form-group mt-3">
+        <label>Profession</label>
+        <input class="form-control" value="{{profile_info.profession}}"
+            name="prof">
+        <small id="emailHelp" class="form-text text-muted">Ex. Engineer at Google, NRP Specialist</small>
+    </div>
+    <div class="form-group mt-2">
+        <label >Bio</label>
+        <input  class="form-control" value="{{profile_info.short_bio}}" 
+            name="bio">
+        <small id="emailHelp" class="form-text text-muted">Max 200 Characters</small>
+    </div>
+    <div class="form-group mt-2">
+        <label>I Know About</label>
+        <input class="form-control" value="{{profile_info.knows_about}}" 
+            name="knows">
+        <small id="emailHelp" class="form-text text-muted">Ex. Programming, Tech, Health, Crypto, Trade etc.</small>
+    </div>
+    <button type="submit" class="btn btn-sm pial">Update</button>
+</form>
+{% endblock main_content %}

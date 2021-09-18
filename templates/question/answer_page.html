@@ -4,7 +4,19 @@
 {% block title %}
 <title>Answer</title>
 {% endblock title %}
-
+{% block styles %}
+<style>
+    .pial {
+      border-color: #00226b;
+      color: #00226b;
+    }
+    
+    .pial:hover {
+      background-color: #00226b;
+      color: white;
+    }
+    </style>
+{% endblock styles %}
 
 {% block main_content %}
 <br>
@@ -16,7 +28,7 @@
             <div class="container my-4">
                 <div class="row">
                     <div class="col-md-8">
-                        <h5>Q: {{the_question}}</h5>
+                        <h6>Q: {{the_question}}</h6>
                         <p>Answer this question:</p>
                         <hr size="30px">
                         <textarea class="form-control" name="answer" cols="25" rows="3"
@@ -29,7 +41,7 @@
                           </div>
 
                         <div class="form-group">
-                            <button class="btn" style="background-color: #0099FF;color:white; position: relative;"
+                            <button class="btn pial mt-2" style="position: relative;"
                                 type="submit">Answer</button>
                         </div>
                         {% if answered %}

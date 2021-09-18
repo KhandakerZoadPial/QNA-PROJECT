@@ -27,6 +27,13 @@
   background-color:#00226b;
 }
 
+.footer-dark1 {
+  padding: 11px;
+  color:#f0f9ff;
+  background-color:#00226b;
+}
+
+
 .footer-dark h3 {
   margin-top:0;
   margin-bottom:12px;
@@ -128,12 +135,7 @@
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="{% url 'home' %}">Home <span class="sr-only">(current)</span></a>
-                </li>
-                {% comment %} <li class="nav-item">
-                    <a class="nav-link" href="#">Link</a>
-                </li> {% endcomment %}
+                
                
                 {% if user.is_authenticated %}
                 <li class="nav-item active">
@@ -144,17 +146,26 @@
                   <a class="nav-link" href="{% url 'account_login' %}">Login <span class="sr-only">(current)</span></a>
                 </li>
                 {% endif %}
-                {% comment %} <li class="nav-item">
-                    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-                </li> {% endcomment %}
+                <li class="nav-item active">
+                  <a class="nav-link" href="{% url 'all' %}">All Questions <span class="sr-only">(current)</span></a>
+                </li>
+                
             </ul>
             <form action="{% url 'search' %}" class="form-inline my-2 my-lg-0" method="post">
             {% csrf_token %}
                 <input class="form-control mr-sm-2" type="search" name="search" placeholder="Search your question.." aria-label="Search">
-                <button class="btn btn-outline-warning my-2 my-sm-0" type="submit"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                <button class="mr-2 btn btn-outline-warning my-2 my-sm-0" type="submit"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
                   <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
                 </svg></button>
             </form>
+            {% if user.is_authenticated %}
+            <a class="btn btn-danger" href="{% url 'account_logout' %}">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-right" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/>
+                <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
+              </svg>
+            </a>
+            {% endif %}
         </div>
     </nav>
 {% if messages %}
@@ -203,19 +214,26 @@
       </div>
     </main>
 
-
-
-<br><br><br>
-<div class="footer-dark">
+<div class="footer-dark1">
+  <br>
+  <center><h5>Total Visits: {{fun.total}}</h5></center>
+</div>
+    <div class="footer-dark">
   <footer>
       <div class="container">
+        
+        
           <div class="row">
+            
+            
               <div class="col-sm-6 col-md-3 item">
                   <h3>Quick Links</h3>
                   <ul>
-                      <li><a href="#">Profile</a></li>
-                      <li><a href="#">All Question</a></li>
-                      <li><a href="#">Home</a></li>
+                    {% if user.is_authenticated %}
+                      <li><a href="{% url 'profile_handler' user.pk %}">Profile</a></li>
+                      {% endif %}
+                      <li><a href="{% url 'all' %}">All Question</a></li>
+                      <li><a href="{% url 'home' %}">Home</a></li>
                   </ul>
               </div>
               <div class="col-sm-6 col-md-3 item">
@@ -227,8 +245,10 @@
                   </ul>
               </div>
               <div class="col-md-6 item text">
+                  
                   <h3>TheAdviceOnline</h3>
-                  <p>TheAdviceOnline is an unique question answer website where users can create account and ask their questions on numerous topics. The site is still in beta version but it's has already a working protoype.</p>
+                  
+                  answer website where users can create account and ask their questions on numerous topics. The site is still in beta version but it's has already a working protoype.</p>
               </div>
               <div class="col item social"><a href="#"><i class="icon ion-social-facebook"></i></a><a href="#"><i class="icon ion-social-twitter"></i></a><a href="#"><i class="icon ion-social-instagram"></i></a></div>
           </div>

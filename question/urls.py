@@ -11,6 +11,7 @@ urlpatterns = [
     path('dv/<int:answer_id>', views.down_vote, name='down_vote'),
     path('q', views.search, name='search'),
     path('q/<int:cat_id>', views.search2, name='search2'),
-    path('et/<int:answer_id>', views.question_edit, name='question_edit')
+    path('et/<int:answer_id>', views.question_edit, name='question_edit'),
+    path('all', views.all_questins, name='all')
 ]
 

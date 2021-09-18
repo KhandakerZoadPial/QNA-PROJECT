@@ -1,5 +1,5 @@
 from django.shortcuts import redirect, render, HttpResponse
-from .models import Question, Answer, Sub_question, User_Profile, category as c
+from .models import Question, Answer, Sub_question, User_Profile,fun as f, category as c
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -8,10 +8,21 @@ from django.core.paginator import Paginator
 
 
 def home(request):
+    try:
+        fun = f.objects.get(pk=1)
+        fun.total = fun.total+1
+        fun.save()
+    except:
+        pass
+
     questions_set = Question.objects.all().order_by('-asked_when')
     cats = c.objects.all()
     if request.method == 'POST' and request.user.is_authenticated:
         the_question = request.POST.get('the_question')
+        if not the_question.strip():
+            messages.error(request, 'Question can not be empty')
+            return redirect('/')
+        category = request.POST.get('category')
 
         if sentence_tester(the_question):
             pass
@@ -19,22 +30,26 @@ def home(request):
             messages.error(request, 'Please try asking a meaningful question!')
             return redirect('/')
 
-        category = request.POST.get('category')
+        
         if category == 'Select Category':
             messages.error(request, "Please select a category properly!")
-            return redirect('/')
+            return render(request, 'question/home.html', {'data': the_question, 'cats': cats, 'fun': fun})
 
         is_ann = request.POST.get('is_ann')
         if is_ann == 'on':
             is_ann = True
         else:
             is_ann = False
-
+        try:
+            category = c.objects.get(cat=category)
+        except:
+            pass
         if the_question.strip():
             obj = Question(asked_by=request.user, the_question=the_question,
                            question_category=category, is_anonymous=is_ann)
             obj.save()
-            return render(request, 'question/home.html', {'questions_set': questions_set, 'cats': cats})
+            messages.error(request, "Successfully added the question!")
+            return render(request, 'question/home.html', {'questions_set': questions_set, 'cats': cats, 'fun': fun})
         else:
             messages.error(request, "A question can't be empty")
             return redirect('/')
@@ -44,7 +59,7 @@ def home(request):
         page_number = request.GET.get('page')
         page_obj = p.get_page(page_number)
 
-        return render(request, 'question/home.html', {'questions_set': page_obj, 'cats': cats})
+        return render(request, 'question/home.html', {'questions_set': page_obj, 'cats': cats, 'fun': fun})
     else:
         return redirect('/accounts/login')
 
@@ -129,30 +144,53 @@ def answer_sub_question(request, sub_question_obj):
         return redirect(f'/answer/{sub_question_obj.main_question.pk}')
 
 
+def rating_calulator(number):
+    if number > 0.0 and number<= 10.0:
+        return 4.0
+    elif number >10.0 and number<=20.0:
+        return 8.0
+    elif number >= 30.0:
+        return 10.0
+    return 0.0
+
+
 def profile_handler(request, user_id):
     try:
         profile_owner_user = User.objects.get(pk=user_id)
+        
         if User_Profile.objects.filter(the_user=profile_owner_user).count() > 0:
             pass
         else:
             obj = User_Profile(the_user=profile_owner_user)
             obj.save()
         obj = User_Profile.objects.get(the_user=profile_owner_user)
-
+       
         qs = Question.objects.filter(asked_by=profile_owner_user).count()
         ans = Answer.objects.filter(answered_by=profile_owner_user).count()
+        rat_num = rating_calulator(qs)
+        print(rat_num)
+        obj.rating = rat_num
+        obj.save()
 
         temp = {
             'qs': qs,
             'ans': ans
         }
+        
+        if profile_owner_user == request.user:
+            users_questions = Question.objects.filter(
+                asked_by=profile_owner_user, is_anonymous=False)
+        else:
+            users_questions = Question.objects.filter(
+                asked_by=profile_owner_user)
         cats = c.objects.all()
-        users_questions = Question.objects.filter(
-            asked_by=profile_owner_user, is_anonymous=False)
-        return render(request, 'question/profile.html', {'profile_info': obj, 'temp': temp, 'cats': cats, 'questions_set': users_questions})
+        
+        return render(request, 'question/profile.html', {'profile_info': obj, 'temp': temp, 'questions_set': users_questions,'cats': cats})
     except:
         messages.error(request, 'Something went wrong')
         return redirect('/')
+
+
 
 
 @login_required()
@@ -355,3 +393,12 @@ def question_edit(request, answer_id):
         else:
             messages.error(request, 'Something went wrong!')
             return redirect('/')
+
+
+def all_questins(request):
+    object_set  = Question.objects.all().order_by('-asked_when')
+    cats = c.objects.all()
+    p = Paginator(object_set, 10)
+    page_number = request.GET.get('page')
+    page_obj = p.get_page(page_number)
+    return render(request, 'question/all.html', {'questions_set': page_obj, 'cats': cats})

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block main_content %}
+
+<br>
+
+<div class="card mt-2">
+    <h6 class="card-header">
+       Search Results For- "{{fr}}"
+    </h6>
+    
+    {% for q in results %}
+    <div class="card-body">
+        <div class="media">
+
+           <a href="{% url 'answer' q.pk %}"> {{q.the_question}} </a>
+
+        </div>
+       
+    </div>
+    <hr>
+    
+    {% endfor %}
+</div>
+
+
+{% endblock main_content %}

@@ -101,6 +101,7 @@
                         class="number3">{{profile_info.rating}}</span>
                 </div>
             </div>
+            
             <hr>
             {% if profile_info.the_user == user %}
                 <a href="{% url 'edit_profile' profile_info.pk %}" class="btn pial">Edit Profile</a> <br>
@@ -136,9 +137,11 @@
                     </div>
                 {% endfor %}
             {% endif %}
+
            
         </div>
         
     </div>
+    
 
 {% endblock main_content %}

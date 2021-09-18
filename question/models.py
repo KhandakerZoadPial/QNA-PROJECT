@@ -2,11 +2,19 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+
+class category(models.Model):
+    cat = models.CharField(max_length=30)
+
+    def __str__(self):
+        return str(self.cat)
+
+
 class Question(models.Model):
     asked_by = models.ForeignKey(User, on_delete=models.CASCADE)
     the_question = models.TextField()
     asked_when = models.DateTimeField(auto_now_add=True)
-    question_category = models.CharField(max_length=30)
+    question_category = models.ForeignKey(category, on_delete=models.CASCADE)
     is_anonymous = models.BooleanField(default=False)
 
     def __str__(self):
@@ -66,7 +74,12 @@ class User_Profile(models.Model):
     knows_about = models.TextField(null=True, blank=True)
     rating = models.FloatField(default=0)
 
+    def __str__(self):
+        return str(self.the_user.username)
 
-class category(models.Model):
-    cat = models.CharField(max_length=30)
+
+
+
+class fun(models.Model):
+    total = models.IntegerField(default=1)
 
