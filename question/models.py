@@ -83,3 +83,12 @@ class User_Profile(models.Model):
 class fun(models.Model):
     total = models.IntegerField(default=1)
 
+
+class Contacts(models.Model):
+    name = models.CharField(max_length=20)
+    email = models.EmailField()
+    comment = models.CharField(max_length=400)
+
+    def __str__(self):
+        return f'By- {self.name}'
+

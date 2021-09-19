@@ -108,10 +108,10 @@
             {% endif %}
             
             {% if profile_info.short_bio %}
-            <div class="card" >
-                <p class="card-header"><b>Bio - </b></p>
+            <div class="card">
+                <p class="card-header"><b>Bio: </b></p>
                 <div class="card-body">
-                    <h5 class="card-title">{{ profile_info.short_bio }}</h5>
+                    <h6 class="card-title">{{ profile_info.short_bio }}</h6>
                 </div>
             </div>
             <br>
@@ -119,10 +119,10 @@
 
             {% if profile_info.knows_about %}
             <div class="card" >
-                <h5 class="card-header">Knows About 
-                </h5>
+                <h6 class="card-header">Knows About:
+                </h6>
                 <div class="card-body">
-                    <h5 class="card-title">{{ profile_info.knows_about }}</h5>
+                    <h6 class="card-title">{{ profile_info.knows_about }}</h6>
                 </div>
             </div>
             {% endif %}
@@ -132,7 +132,7 @@
                 {% for q in questions_set %}
                     <div class="card mt-2">
                         <div class="card-body">
-                            <h5><a href="{% url 'answer' q.pk %}">{{q.the_question}}</a> </h5>                        
+                            <h6><a href="{% url 'answer' q.pk %}">{{q.the_question}}</a> </h6>                        
                         </div>
                     </div>
                 {% endfor %}

@@ -23,11 +23,11 @@
 {% for q in questions_set %}
 <div class="card mt-4">
     <div class="card-body">
-        <h6><a href="{% url 'answer' q.pk %}">{{q.the_question}}</a> </h6>
+        <h6 class="text-justify"><a href="{% url 'answer' q.pk %}">{{q.the_question}}</a> </h6>
         {% if q.is_anonymous %}
         <p>Asked by - Anonymous</p>
         {% else %}
-        <p>asked by- <a href="{% url 'profile_handler' q.asked_by.pk %}">{{q.asked_by.first_name}}
+        <p>Asked by- <a href="{% url 'profile_handler' q.asked_by.pk %}">{{q.asked_by.first_name}}
                 {{q.asked_by.last_name}}
             </a></p>
         {% endif %}

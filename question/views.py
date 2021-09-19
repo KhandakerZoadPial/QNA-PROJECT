@@ -1,5 +1,6 @@
+from django.http import request
 from django.shortcuts import redirect, render, HttpResponse
-from .models import Question, Answer, Sub_question, User_Profile,fun as f, category as c
+from .models import Question, Answer, Sub_question,Contacts, User_Profile, fun as f, category as c
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -117,7 +118,7 @@ def answer_question(request, question_obj):
             messages.error(request, 'The question does not exist!')
             return redirect('/')
 
-
+@login_required()
 def answer_sub_question(request, sub_question_obj):
     fun = f.objects.get(pk=1)
     try:
@@ -329,7 +330,7 @@ def search(request):
         x = Question.objects.all()
 
         for item in x:
-            habijabi = item.question_category.lower()
+            habijabi = item.question_category.cat.lower()
             if habijabi in query_list:
                 if item not in container:
                     container.append(item)
@@ -368,7 +369,7 @@ def sentence_tester(sentence):
 
     return False
 
-
+@login_required()
 def question_edit(request, answer_id):
     cats = c.objects.all()
     fun = f.objects.get(pk=1)
@@ -410,3 +411,23 @@ def all_questins(request):
     page_number = request.GET.get('page')
     page_obj = p.get_page(page_number)
     return render(request, 'question/all.html', {'questions_set': page_obj, 'cats': cats, 'fun': fun})
+
+
+def about_us(request):
+    fun = f.objects.get(pk=1)
+    cats = c.objects.all()
+
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        comment = request.POST.get('comment')
+        if name.strip() and email.strip() and comment.strip():
+            contact_obj = Contacts(name=name, email=email, comment=comment)
+            contact_obj.save()
+            messages.success(request, 'Message sent to the Admin.')
+        else:
+            messages.error(request, 'Please provide inputs properly!')
+
+        return render(request, 'question/about_page.html', {'fun': fun, 'cats': cats})
+    else:
+        return render(request, 'question/about_page.html', {'fun': fun, 'cats': cats})

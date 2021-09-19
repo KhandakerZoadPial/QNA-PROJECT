@@ -231,7 +231,7 @@
                   <ul>
                     {% if user.is_authenticated %}
                       <li><a href="{% url 'profile_handler' user.pk %}">Profile</a></li>
-                      {% endif %}
+                    {% endif %}
                       <li><a href="{% url 'all' %}">All Question</a></li>
                       <li><a href="{% url 'home' %}">Home</a></li>
                   </ul>
@@ -239,18 +239,18 @@
               <div class="col-sm-6 col-md-3 item">
                   <h3>About</h3>
                   <ul>
-                      <li><a href="#">Company</a></li>
-                      <li><a href="#">Team</a></li>
-                      <li><a href="#">Careers</a></li>
+                      <li><a href="{% url 'about_us' %}">Company</a></li>
+                      <li><a href="{% url 'about_us' %}">Privacy Policy</a></li>
+                      <li><a href="{% url 'about_us' %}">Contact</a></li>
                   </ul>
               </div>
               <div class="col-md-6 item text">
                   
                   <h3>TheAdviceOnline</h3>
                   
-                  answer website where users can create account and ask their questions on numerous topics. The site is still in beta version but it's has already a working protoype.</p>
+                  <p  class="text-justify">answer website where users can create account and ask their questions on numerous topics. The site is still in beta version but it's has already a working protoype.</p>
               </div>
-              <div class="col item social"><a href="#"><i class="icon ion-social-facebook"></i></a><a href="#"><i class="icon ion-social-twitter"></i></a><a href="#"><i class="icon ion-social-instagram"></i></a></div>
+              <div class="col item social"><a href="#"><i class="icon ion-social-facebook"></i></a><a href="#"><i class="icon ion-social-twitter"></i></a><a href="https://www.linkedin.com/in/advice-online-6b89a9220/"><i class="icon ion-social-linkedin"></i></a></div>
           </div>
           <p class="copyright">TheAdvioceOnline © 2021</p>
       </div>
