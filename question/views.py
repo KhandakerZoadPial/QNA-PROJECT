@@ -67,6 +67,7 @@ def home(request):
 @login_required()
 def answer_question(request, question_obj):
     user_ = request.user
+    fun = f.objects.get(pk=1)
     if request.method == 'GET':
         try:
             answered = []
@@ -91,7 +92,7 @@ def answer_question(request, question_obj):
                     if item.is_answered:
                         answered.append(item)
             cats = c.objects.all()
-            return render(request, 'question/answer_page.html', {'the_question': the_question, 'other_answers': other_answers, 'answered': answered, 'unanswered': unanswered, 'cats': cats})
+            return render(request, 'question/answer_page.html', {'the_question': the_question, 'other_answers': other_answers, 'answered': answered, 'unanswered': unanswered, 'cats': cats, 'fun': fun})
         except:
             messages.error(request, 'The question does not exist!')
             return redirect('/')
@@ -118,6 +119,7 @@ def answer_question(request, question_obj):
 
 
 def answer_sub_question(request, sub_question_obj):
+    fun = f.objects.get(pk=1)
     try:
         sub_question_obj = Sub_question.objects.get(pk=sub_question_obj)
     except:
@@ -128,12 +130,12 @@ def answer_sub_question(request, sub_question_obj):
         if request.user == sub_question_obj.main_question.asked_by:
             if Answer.objects.filter(answer_of_sub=sub_question_obj).count() > 0:
                 answer = Answer.objects.get(answer_of_sub=sub_question_obj)
-                return render(request, 'question/sub_answer.html', {'the_question': sub_question_obj, 'flag': False, 'the_answer': answer})
+                return render(request, 'question/sub_answer.html', {'the_question': sub_question_obj, 'flag': False, 'the_answer': answer, 'fun': fun})
             else:
                 return render(request, 'question/sub_answer.html', {'the_question': sub_question_obj, 'flag': True})
         else:
             answer = Answer.objects.filter(answer_of_sub=sub_question_obj)[0]
-            return render(request, 'question/sub_answer.html', {'the_question': sub_question_obj, 'flag': False, 'the_answer': answer})
+            return render(request, 'question/sub_answer.html', {'the_question': sub_question_obj, 'flag': False, 'the_answer': answer, 'fun': fun})
     elif request.method == 'POST':
         the_answer = request.POST.get('answer')
         obj = Answer(answered_by=request.user,
@@ -155,6 +157,7 @@ def rating_calulator(number):
 
 
 def profile_handler(request, user_id):
+    fun = f.objects.get(pk=1)
     try:
         profile_owner_user = User.objects.get(pk=user_id)
         
@@ -185,7 +188,7 @@ def profile_handler(request, user_id):
                 asked_by=profile_owner_user)
         cats = c.objects.all()
         
-        return render(request, 'question/profile.html', {'profile_info': obj, 'temp': temp, 'questions_set': users_questions,'cats': cats})
+        return render(request, 'question/profile.html', {'profile_info': obj, 'temp': temp, 'questions_set': users_questions,'cats': cats, 'fun': fun})
     except:
         messages.error(request, 'Something went wrong')
         return redirect('/')
@@ -195,6 +198,7 @@ def profile_handler(request, user_id):
 
 @login_required()
 def edit_profile(request, profile_id):
+    fun = f.objects.get(pk=1)
     cats = c.objects.all()
     if request.method == 'POST':
         profile_obj = User_Profile.objects.filter(pk=profile_id)
@@ -218,7 +222,7 @@ def edit_profile(request, profile_id):
             return redirect('/')
     else:
         profile_obj = User_Profile.objects.filter(pk=profile_id)[0]
-        return render(request, 'question/edit_page.html', {'profile_info': profile_obj, 'cats': cats})
+        return render(request, 'question/edit_page.html', {'profile_info': profile_obj, 'cats': cats, 'fun': fun})
 
 
 @login_required()
@@ -287,6 +291,7 @@ def down_vote(request, answer_id):
 
 def search(request):
     container = []
+    fun = f.objects.get(pk=1)
     if request.method == 'POST':
         query = request.POST.get('search')
         query_prev = query
@@ -333,18 +338,19 @@ def search(request):
         return redirect('/')
     cats = c.objects.all()
     print(len(container))
-    return render(request, 'question/search.html', {'results': container, 'cats': cats, 'fr': query_prev})
+    return render(request, 'question/search.html', {'results': container, 'cats': cats, 'fr': query_prev, 'fun': fun})
 
 
 def search2(request, cat_id):
     container = []
-    query = c.objects.get(pk=cat_id)
-    query = query.cat
+    fun = f.objects.get(pk=1)
+    query1 = c.objects.get(pk=cat_id)
+    query = query1.cat
 
-    results = Question.objects.filter(question_category=query)
+    results = Question.objects.filter(question_category=query1)
 
     cats = c.objects.all()
-    return render(request, 'question/search.html', {'results': results, 'cats': cats, 'fr': query})
+    return render(request, 'question/search.html', {'results': results, 'cats': cats, 'fr': query, 'fun': fun})
 
 
 d = enchant.Dict("en_US")
@@ -365,6 +371,7 @@ def sentence_tester(sentence):
 
 def question_edit(request, answer_id):
     cats = c.objects.all()
+    fun = f.objects.get(pk=1)
     if request.method == 'POST':
         edited_answer = request.POST.get('edited_answer')
         if len(edited_answer) > 0 and edited_answer.strip():
@@ -386,7 +393,7 @@ def question_edit(request, answer_id):
         if data.count() > 0:
             if request.user == data[0].answered_by:
                 data = data[0]
-                return render(request, 'question/answer_edit_page.html', {'answer': data, 'cats': cats})
+                return render(request, 'question/answer_edit_page.html', {'answer': data, 'cats': cats, 'fun': fun})
             else:
                 messages.error(request, 'Something went wrong!')
                 return redirect('/')
@@ -397,8 +404,9 @@ def question_edit(request, answer_id):
 
 def all_questins(request):
     object_set  = Question.objects.all().order_by('-asked_when')
+    fun = f.objects.get(pk=1)
     cats = c.objects.all()
     p = Paginator(object_set, 10)
     page_number = request.GET.get('page')
     page_obj = p.get_page(page_number)
-    return render(request, 'question/all.html', {'questions_set': page_obj, 'cats': cats})
+    return render(request, 'question/all.html', {'questions_set': page_obj, 'cats': cats, 'fun': fun})
