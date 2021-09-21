@@ -13,6 +13,8 @@ urlpatterns = [
     path('q/<int:cat_id>', views.search2, name='search2'),
     path('et/<int:answer_id>', views.question_edit, name='question_edit'),
     path('all', views.all_questins, name='all'),
-    path('more', views.about_us, name='about_us')
+    path('more', views.about_us, name='about_us'),
+    path('privacy', views.about_us, name='about_us'),
+    path('terms', views.about_us, name='about_us')
 ]
 
